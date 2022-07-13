@@ -1,0 +1,6 @@
+UTS_data: 
+  processed_data: 
+    training: datas/UTS-Position/UTS_training.csv
+    testing: datas/UTS-Position/UTS_test.csv
+    filter_train: datas/UTS-Position/filter_uts_training.csv
+    filter_test: datas/UTS-Position/filter_uts_testing.csv
