@@ -98,7 +98,7 @@ def train_model_deep(model, criterion, optimizer, scheduler, dataloaders, datase
     
     for epoch in range(num_epochs):
         # Each epoch has a training and validation phase
-        for phase in ['train', 'test']:
+        for phase in ['train', 'val']:
             print(f"Epoch {epoch} -> phase {phase}: ")
 
             if phase == 'train':
@@ -121,7 +121,7 @@ def train_model_deep(model, criterion, optimizer, scheduler, dataloaders, datase
                     outputs = model(inputs)
                     loss = criterion(outputs, labels)
                     end = time.time()
-                    print(f"\tTime forward: {start - end}")
+                    print(f"\tTime forward: {end - start}")
 
                     # backward + optimize only if in training phase
                     if phase == 'train':
@@ -130,12 +130,12 @@ def train_model_deep(model, criterion, optimizer, scheduler, dataloaders, datase
                         start = time.time()
                         loss.backward()
                         end = time.time()
-                        print(f"\tTime backward: {start - end}")
+                        print(f"\tTime backward: {end - start}")
 
                         start = time.time()
                         optimizer.step()
                         end = time.time()
-                        print(f"\tTime update weight: {start - end}")
+                        print(f"\tTime update weight: {end - start}")
 
                     print()
 
@@ -149,7 +149,7 @@ def train_model_deep(model, criterion, optimizer, scheduler, dataloaders, datase
             statistic_loss[phase].append(epoch_loss)
 
             # deep copy the model
-            if phase == 'test' and epoch_loss < best_loss:
+            if phase == 'val' and epoch_loss < best_loss:
                 best_loss = epoch_loss
                 best_model_state = deepcopy(model.state_dict())
 
