@@ -4,3 +4,6 @@ UTS_data:
     testing: datas/UTS-Position/UTS_test.csv
     filter_train: datas/UTS-Position/filter_uts_training.csv
     filter_test: datas/UTS-Position/filter_uts_testing.csv
+
+model_train: 
+  best_model_state: datas/outputs/best_model_state_quantum.pth
