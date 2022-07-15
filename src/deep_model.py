@@ -147,9 +147,11 @@ def train_model_deep(model, criterion, optimizer, scheduler, dataloaders, datase
 
             epoch_loss = running_loss / dataset_sizes[phase]
             statistic_loss[phase].append(epoch_loss)
+            print(f"\t\tEpoch loss [{epoch}] / phase_{phase}: {epoch_loss}")
 
             # deep copy the model
             if phase == 'val' and epoch_loss < best_loss:
+                print(f"\t\t\tBEST LOST: {epoch_loss}")
                 best_loss = epoch_loss
                 best_model_state = deepcopy(model.state_dict())
 
