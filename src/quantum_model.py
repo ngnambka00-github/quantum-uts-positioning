@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 # define global variable
 N_INPUTS = 4
-N_QUBITS = 2
+N_QUBITS = 1
 N_OUT=2
 N_SHOTS=512
 
@@ -98,7 +98,7 @@ class QuantumLayer(Function):
             try:
                 simulator = qiskit.Aer.get_backend('aer_simulator')
                 simulator.set_options(device='GPU')
-                ctx.QiskitCirc = QuantumCircuit(N_QUBITS, simulator, shots=N_SHOTS, n_inputs=N_INPUTS, is_add_noise=True)
+                ctx.QiskitCirc = QuantumCircuit(N_QUBITS, simulator, shots=N_SHOTS, n_inputs=N_INPUTS, is_add_noise=False)
             except AerError as e:
                 print("Error GPU Simulator")
 
@@ -110,12 +110,17 @@ class QuantumLayer(Function):
     
     @staticmethod
     def backward(ctx, grad_output):
+        
+        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        grad_output = torch.tensor(grad_output, device=device)
+
         # gia tri ship nay co the thay doi
         SHIFT = np.pi/2
 
         forward_tensor, i = ctx.saved_tensors
         input_numbers = i
-        gradients = torch.Tensor()
+        
+        gradients = torch.Tensor().to(device)
         
         for k in range(N_INPUTS):
             shift_right = input_numbers.detach().clone()
@@ -123,11 +128,13 @@ class QuantumLayer(Function):
             shift_left = input_numbers.detach().clone()
             shift_left[k] = shift_left[k] - SHIFT
             
-            expectation_right = ctx.QiskitCirc.forward(shift_right)
-            expectation_left  = ctx.QiskitCirc.forward(shift_left)
-            gradient = torch.tensor([expectation_right]) - torch.tensor([expectation_left])
+            expectation_right = torch.tensor([ctx.QiskitCirc.forward(shift_right)], device=device)
+            expectation_left  = torch.tensor([ctx.QiskitCirc.forward(shift_left)], device=device)
+
+            gradient = expectation_right - expectation_left
             gradients = torch.cat((gradients, gradient.float()))
-        result = torch.Tensor(gradients)
+
+        result = torch.tensor(gradients, device=device)
 
         return (result.float() * grad_output.float()).T
 

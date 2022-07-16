@@ -5,12 +5,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 import numpy as np
+from zmq import device
 
 from quantum_model import QuantumLayer
 
 # define global variable
 N_INPUTS = 4
-N_QUBITS = 2
+N_QUBITS = 1
 N_OUT=2
 N_SHOTS=512
 
@@ -75,9 +76,11 @@ class Net(nn.Module):
               m.bias.data.fill_(0.0001)
 
     def forward(self, x):
+        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         if self.quantum:
             x = self.fc_in(x) # vao 64 -> ra n_inputs
             quantum_out = torch.cat([self.quantum_layer(x_i) for x_i in x])
+            quantum_out = quantum_out.to(device)
 
             x = self.pre_out(quantum_out.float())
             x = F.relu(self.pre_bn(x))
@@ -89,6 +92,9 @@ class Net(nn.Module):
         return x
 
 def train_model_deep(model, criterion, optimizer, scheduler, dataloaders, dataset_sizes, data_path=None, num_epochs=25):
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    model.to(device)
+
     best_model_state = deepcopy(model.state_dict())
     best_loss = 1000000.0
     
@@ -112,6 +118,8 @@ def train_model_deep(model, criterion, optimizer, scheduler, dataloaders, datase
 
             # Iterate over data.
             for inputs, labels in dataloaders[phase]:
+                inputs = inputs.to(device)
+                labels = labels.to(device)
 
                 count += 1
                 # forward
