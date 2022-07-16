@@ -125,7 +125,7 @@ def train_model_deep(model, criterion, optimizer, scheduler, dataloaders, datase
                 # forward
                 # track history if only in train
                 with torch.set_grad_enabled(phase == 'train'):
-                    print(f"\tBatch: {count}/{phase}: ")
+                    print(f"\tBatch: {count}/{phase} (E: {epoch} | Best ME: {best_loss}): ")
                     
                     start = time.time()
                     outputs = model(inputs)
