@@ -112,6 +112,7 @@ def train_model_deep(model, criterion, optimizer, scheduler, dataloaders, datase
 
             # Iterate over data.
             for inputs, labels in dataloaders[phase]:
+
                 count += 1
                 # forward
                 # track history if only in train
@@ -120,6 +121,8 @@ def train_model_deep(model, criterion, optimizer, scheduler, dataloaders, datase
                     
                     start = time.time()
                     outputs = model(inputs)
+                    print("Type outputs: ",type(outputs))
+
                     loss = criterion(outputs, labels)
                     end = time.time()
                     print(f"\tTime forward: {end - start}")
