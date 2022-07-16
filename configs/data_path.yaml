@@ -5,5 +5,9 @@ UTS_data:
     filter_train: datas/UTS-Position/filter_uts_training.csv
     filter_test: datas/UTS-Position/filter_uts_testing.csv
 
+  kernel_pca_cosine_64: datas/kernel_pca_cosine/kernel_pca_cosine_64.npz
+
 model_train: 
   best_model_state: datas/outputs/best_model_state_quantum.pth
+  loss_train: datas/outputs/loss_train.npz
+  loss_val: datas/outputs/loss_val.npz
