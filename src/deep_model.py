@@ -4,9 +4,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset
-from tqdm import tqdm
+import numpy as np
 
-from quantum_model import QuantumCircuit, QuantumLayer
+from quantum_model import QuantumLayer
 
 # define global variable
 N_INPUTS = 4
@@ -88,9 +88,10 @@ class Net(nn.Module):
 
         return x
 
-def train_model_deep(model, criterion, optimizer, scheduler, dataloaders, dataset_sizes, save_model_path=None, num_epochs=25):
+def train_model_deep(model, criterion, optimizer, scheduler, dataloaders, dataset_sizes, data_path=None, num_epochs=25):
     best_model_state = deepcopy(model.state_dict())
     best_loss = 1000000.0
+    
     statistic_loss = {
         "train": [], 
         "val": []
@@ -157,8 +158,10 @@ def train_model_deep(model, criterion, optimizer, scheduler, dataloaders, datase
 
     # model.load_state_dict(best_model_state)
     # save best_model_state
-    if not (save_model_path is None):
-        torch.save(best_model_state, save_model_path)
+    if not (data_path is None):
+        torch.save(best_model_state, data_path["save_model_path"])
+        np.savez(data_path["loss_train"], np.array(statistic_loss["train"]))
+        np.savez(data_path["loss_val"], np.array(statistic_loss["val"]))
 
     # return thong ke loss (train, val) | lowest_loss | best model state
     return statistic_loss, best_loss, best_model_state

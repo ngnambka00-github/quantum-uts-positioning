@@ -4,6 +4,7 @@ from torch.autograd import Function
 
 import numpy as np
 import qiskit
+from qiskit.providers.aer import AerError
 
 from qiskit.visualization import plot_state_qsphere,plot_histogram, plot_state_city
 import matplotlib.pyplot as plt
@@ -94,8 +95,12 @@ class QuantumLayer(Function):
     @staticmethod
     def forward(ctx, inp):
         if not hasattr(ctx, 'QiskitCirc'):
-            simulator = qiskit.Aer.get_backend('aer_simulator')
-            ctx.QiskitCirc = QuantumCircuit(N_QUBITS, simulator, shots=N_SHOTS, n_inputs=N_INPUTS, is_add_noise=True)
+            try:
+                simulator = qiskit.Aer.get_backend('aer_simulator')
+                simulator.set_options(device='GPU')
+                ctx.QiskitCirc = QuantumCircuit(N_QUBITS, simulator, shots=N_SHOTS, n_inputs=N_INPUTS, is_add_noise=True)
+            except AerError as e:
+                print("Error GPU Simulator")
 
         exp_value = ctx.QiskitCirc.forward(inp)
         result = torch.tensor([exp_value])
